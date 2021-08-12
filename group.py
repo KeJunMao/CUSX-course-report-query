@@ -22,9 +22,7 @@ for i in range(1, count):
             password = flag
 
     user = User(username, password, False)
-    print(f"正在登录{username,password}，请稍等...")
-    user.login()
-    source = user.getSource()
+    source = user.do()
     total = user.getTotal(source)
     all_user.append({
         "name": user.name if user.name else user.username,

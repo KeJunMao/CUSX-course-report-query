@@ -5,17 +5,40 @@ import re
 import time
 from dotenv import load_dotenv
 import os
-
+from sqlalchemy import create_engine, Column, Integer, String, TEXT
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+import json
 load_dotenv()
 
+
+Base = declarative_base()
+engine = create_engine(os.environ.get("DB_PATH"))
 baseUrl = os.getenv('BASE_URL')
+Session = sessionmaker(bind=engine)
+session = Session()
+
+
+class Course(Base):
+    __tablename__ = 'course'
+
+    id = Column(Integer, primary_key=True)
+    username = Column(String(10))  # 学号
+    password = Column(String(16))  # 密码
+    realyname = Column(String(16))  # 姓名
+    semester = Column(Integer)  # 学期
+    course_report = Column(TEXT)  # 课程名
+
+
+Base.metadata.create_all(engine)
 
 
 class User:
-    def __init__(self, username, password, evaluate=True):
+    def __init__(self, username, password, evaluate=True, force_update=False):
         self.username = username
         self.password = password
         self.evaluate = evaluate  # 是否评教
+        self.force_update = force_update  # 是否强制更新
         self.isLogin = False
         self.name = ""
         self.hashPassword = ""
@@ -58,7 +81,11 @@ class User:
                             "名称": ''.join(name.split()),
                             "成绩": float(tds[7].string.strip())
                         })
-
+            if len(data_list) > 0:
+                course = Course(username=self.username, password=self.password,
+                                realyname=self.name, semester=self.semester, course_report=json.dumps(data_list))
+                session.add(course)
+                session.commit()
             return data_list
         else:
             print(f"{self.username}: 账号或密码错误")
@@ -148,3 +175,18 @@ class User:
         shabasetext = pattern.search(str(script)).group(1)
         hash_object = hashlib.sha1(str.encode(shabasetext + self.password))
         return hash_object.hexdigest()
+
+    def do(self):
+        if self.force_update:
+            self.login()
+            return self.getSource()
+        else:
+            course = session.query(Course).filter_by(
+                username=self.username).first()
+            if course is None:
+                self.login()
+                return self.getSource()
+            else:
+                self.isLogin = True
+                self.name = course.realyname
+                return json.loads(course.course_report)

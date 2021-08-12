@@ -5,7 +5,7 @@
 ## 安装依赖
 
 ```bash
-pip3 install dotenv bs4 requests
+pip3 install dotenv bs4 requests sqlalchemy
 cp .env.template .env
 ```
 
@@ -16,6 +16,8 @@ cp .env.template .env
 > 注意！本工具会自动把评教任务完成并且都选 A
 
 ### 单人查询
+
+单人查询会先查询本地数据库，没有再去爬取，也可以指定强制
 
 ```bash
 python single.py
@@ -29,12 +31,18 @@ python single.py
   ```
   请输入学号和密码：2020202020 password
   ```
-
-会自动复制到剪贴板，可以方便的粘贴给你的朋友们！
+- 后缀输入 --force 即可强制爬取并更新数据库
+  ```
+  请输入学号和密码：2020202020 password --force
+  请输入学号和密码：2020202020 --force
+  ```
+  会自动复制到剪贴板，可以方便的粘贴给你的朋友们！
 
 ### 整班查询
 
-整班查询会使用学号遍历查询
+整班查询会使用学号遍历查询，会先查询本地数据库，没有再去爬取
+
+> 考虑到数据量，不支持强制爬取
 
 ```bash
 python group.py
