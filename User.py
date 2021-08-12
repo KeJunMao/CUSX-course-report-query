@@ -1,7 +1,3 @@
-'''
-file: cmcjcx
-author: KeJun
-'''
 import requests
 import hashlib
 from bs4 import BeautifulSoup

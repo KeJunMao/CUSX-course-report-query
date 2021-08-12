@@ -1,4 +1,4 @@
-# 传媒成绩查询
+# CUSX course report query
 
 这是一个自动查询山西传媒学院成绩的小工具
 
