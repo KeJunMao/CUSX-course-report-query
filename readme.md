@@ -55,6 +55,12 @@ python group.py
 
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 
+## 支持我
+
+![爱票](https://i.loli.net/2021/07/31/A45etf1sJ2ZMBHl.png)
+
+> 微信扫码支持我创业！
+
 ## License
 
 [MIT](./LICENSE.txt)
