@@ -12,7 +12,7 @@ while True:
     if username == "q":
         break
     print(f"正在登录{username,password}，请稍等...")
-    user = User(username, password, False)
+    user = User(username, password)
     user.login()
     source = user.getSource()
     if not user.isLogin:

@@ -21,7 +21,7 @@ for i in range(1, count):
         elif flag != '':
             password = flag
 
-    user = User(username, password)
+    user = User(username, password, False)
     print(f"正在登录{username,password}，请稍等...")
     user.login()
     source = user.getSource()
