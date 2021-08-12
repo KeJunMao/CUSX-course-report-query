@@ -12,9 +12,10 @@ baseUrl = os.getenv('BASE_URL')
 
 
 class User:
-    def __init__(self, username, password):
+    def __init__(self, username, password, evaluate=True):
         self.username = username
         self.password = password
+        self.evaluate = evaluate  # 是否评教
         self.isLogin = False
         self.name = ""
         self.hashPassword = ""
@@ -44,7 +45,7 @@ class User:
             source = requests.get(
                 f"{baseUrl}/eams/teach/grade/course/person!search.action?semesterId={self.semester}", cookies=self.cookies, headers=self.headers)
             soup = BeautifulSoup(source.text, 'html.parser')
-            if soup.text.find('完成本学期评教后再查看成绩') != -1:
+            if soup.text.find('完成本学期评教后再查看成绩') != -1 and self.evaluate:
                 self.stdEvaluate()
                 return self.getSource()
             data_list = []
