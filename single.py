@@ -31,10 +31,11 @@ while True:
     if not user.isLogin:
         continue
     total = user.getTotal(source)
-    text += f"{user.name} - 总成绩: {total} 平均成绩: {total / len(source) if len(source) > 0 else 1:.2f}\n"
+    text += f"{user.username} - 总成绩: {total:.2f} 平均成绩: {total / len(source) if len(source) > 0 else 1:.2f}\n"
+    # text += f"{user.name} - 总成绩: {total:.2f} 平均成绩: {total / len(source) if len(source) > 0 else 1:.2f}\n"
     for s in source:
         text += f"\t {s['名称']}: {s['成绩']}\n"
-    text += "\n不用谢我，如果可以的话，空间说说第一条，大学生创业！扫一下或者转发一下都可以鸭！拜托了这对我真的很重要！"
+    text += "\n有时候发不出消息，收到回复下，另外空间说说第一条，大学生创业！扫一下！拜托了这对我真的很重要！"
     print(text)
     pyperclip.copy(text)
     force_update = False
