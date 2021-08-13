@@ -1,3 +1,4 @@
+import threading
 import requests
 import hashlib
 from bs4 import BeautifulSoup
@@ -22,12 +23,21 @@ session = Session()
 class Course(Base):
     __tablename__ = 'course'
 
-    id = Column(Integer, primary_key=True)
-    username = Column(String(10))  # 学号
+    username = Column(String(10), primary_key=True)  # 学号
     password = Column(String(16))  # 密码
     realyname = Column(String(16))  # 姓名
     semester = Column(Integer)  # 学期
     course_report = Column(TEXT)  # 课程名
+
+    def check_existing(self):
+        existing = session.query(Course).filter_by(
+            username=self.username).first()
+        if not existing:
+            course = self
+        else:
+            course = existing
+        session.close()
+        return course
 
 
 Base.metadata.create_all(engine)
@@ -45,12 +55,14 @@ class User:
         self.cookies = None
         self.semester = os.getenv('SEMESTER')
         self.headers = {
-            "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
-            "accept-language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7",
-            "cache-control": "max-age=0",
-            "content-type": "application/x-www-form-urlencoded",
-            "upgrade-insecure-requests": "1",
-            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 11_2_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.192 Safari/537.36"
+            'Connection': 'keep-alive',
+            'Cache-Control': 'max-age=0',
+            'Upgrade-Insecure-Requests': '1',
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+            'Referer': 'http://172-18-2-55.vpn.arft.net:8118/',
+            'Accept-Language': 'zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7',
+            'Content-Type': 'application/x-www-form-urlencoded',
         }
 
     def getTotal(self, source_list):
@@ -75,7 +87,7 @@ class User:
             for idx, tr in enumerate(soup.find_all('tr')):
                 if idx != 0:
                     tds = tr.find_all('td')
-                    if len(tds) != 0 and tds[3].text:
+                    if len(tds) >= 3 and tds[3].text:
                         name = tds[3].text
                         data_list.append({
                             "名称": ''.join(name.split()),
@@ -84,8 +96,10 @@ class User:
             if len(data_list) > 0:
                 course = Course(username=self.username, password=self.password,
                                 realyname=self.name, semester=self.semester, course_report=json.dumps(data_list))
+                course = course.check_existing()
                 session.add(course)
                 session.commit()
+
             return data_list
         else:
             print(f"{self.username}: 账号或密码错误")
@@ -143,7 +157,11 @@ class User:
 
     def login(self):
         r = self.getHtml()
-        self.cookies = r.cookies
+        self.cookies = {
+            'JSESSIONID': r.cookies.get('JSESSIONID'),
+            'TWFID': os.getenv('TWFID'),
+            'GSESSIONID': r.cookies.get('GSESSIONID'),
+        }
         self.hashPassword = self.getShaPassword(r)
         formData = {
             "username": self.username,
@@ -153,7 +171,7 @@ class User:
         }
         time.sleep(float(os.getenv('SLEEP')))
         user = requests.post(f"{baseUrl}/eams/login.action",
-                             cookies=self.cookies, data=formData)
+                             cookies=self.cookies, data=formData, headers=self.headers)
         soup = BeautifulSoup(user.text, 'html.parser')
         c = soup.find('a', {"href": '/eams/security/my.action'})
         if c:
@@ -162,7 +180,7 @@ class User:
 
     def getHtml(self):
         r = requests.get(f"{baseUrl}/eams/login.action",
-                         headers=self.headers, cookies=dict(TWFID='3a03053f4a6d565c'))
+                         headers=self.headers, cookies=self.cookies)
         return r
 
     def getCookies(self, r):
@@ -182,7 +200,7 @@ class User:
             return self.getSource()
         else:
             course = session.query(Course).filter_by(
-                username=self.username).first()
+                username=self.username, semester=self.semester).first()
             if course is None:
                 self.login()
                 return self.getSource()
@@ -190,3 +208,24 @@ class User:
                 self.isLogin = True
                 self.name = course.realyname
                 return json.loads(course.course_report)
+
+
+def keeplive():
+    test_user = User(
+        username='2020202020',
+        password='2020202020', force_update=True
+    )
+    test_user.getHtml()
+
+
+def set_interval(func, sec):
+    def func_wrapper():
+        set_interval(func, sec)
+        func()
+    t = threading.Timer(sec, func_wrapper)
+    t.start()
+    return t
+
+
+if os.getenv('KEEPLIVE') == '1':
+    set_interval(keeplive, 20)
