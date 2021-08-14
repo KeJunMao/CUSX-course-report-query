@@ -5,7 +5,7 @@
 ## 安装依赖
 
 ```bash
-pip3 install dotenv bs4 requests sqlalchemy
+pip3 install dotenv bs4 requests sqlalchemy pandas
 cp .env.template .env
 ```
 
@@ -58,6 +58,14 @@ python group.py
 # 输入 -i 不再确认密码
 请确认学号密码(('2020202003', '2020202003'))：-i
 ```
+
+### 统计分析
+
+```bash
+python ranking.py
+```
+
+将生成各个科目的成绩统计
 
 ## Contributing
 
