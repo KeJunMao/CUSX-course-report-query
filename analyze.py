@@ -3,7 +3,6 @@ import os
 import json
 import pandas as pd
 from dotenv import load_dotenv
-from pandas.io.json import json_normalize
 
 load_dotenv()
 
