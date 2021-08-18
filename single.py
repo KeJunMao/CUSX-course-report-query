@@ -33,11 +33,10 @@ while True:
         continue
     total = user.getTotal(source)
     rank_info = get_rank_info(user.username)
-    text += f"{user.username} - 总成绩: {total:.2f} 平均成绩: {total / len(source) if len(source) > 0 else 1:.2f} 排名：{rank_info['ranking']:.0f}/{rank_info['total_users']} \n"
-    # text += f"{user.name} - 总成绩: {total:.2f} 平均成绩: {total / len(source) if len(source) > 0 else 1:.2f}\n"
+    text += f"{user.username} - 总分: {total:.2f} 平均分: {total / len(source) if len(source) > 0 else 1:.2f} 排名：{rank_info['ranking']:.0f}/{rank_info['total_users']} \n"
     for s in source:
         text += f"\t {s['名称']}: {s['成绩']}\n"
-    text += "\n不用谢我，空间说说拜托扫一下呜呜呜"
+    text += "\n不用谢我呜呜呜，如果愿意空间说说拜托微信扫一下！这对我真的很重要啦呜呜呜"
     print(text)
     pyperclip.copy(text)
     force_update = False
