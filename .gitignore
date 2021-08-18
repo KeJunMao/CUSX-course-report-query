@@ -3,3 +3,7 @@ __pycache__
 cmcjcx.db
 analyze.csv
 *.ipynb
+output.png
+test.py
+.DS_Store
+sync.py

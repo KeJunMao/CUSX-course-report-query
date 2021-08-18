@@ -59,6 +59,26 @@ python group.py
 请确认学号密码(('2020202003', '2020202003'))：-i
 ```
 
+### QQ 机器人
+
+需要安装 mcl
+
+首先要安装额外依赖
+
+```
+pip install cairosvg graia-broadcast graia-application-mirai==0.19.2
+```
+
+`.env` 填入对应信息然后
+
+```bash
+python bot.py
+```
+
+赶鸭子上架写的，不是很好看、读
+
+> 群里使用 /学号 的方式查询，具体规则和 single 一致，然后会发送一张还算美观的成绩单
+
 ### 统计分析
 
 ```bash
